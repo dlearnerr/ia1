@@ -1,0 +1,9 @@
+openssl genrsa > key.pri
+openssl rsa -in key.pri -out key.pub -pubout
+
+openssl rsautl -encrypt -inkey key.pub -pubin -in plain.txt -out earth.bin
+openssl rsautl -decrypt -inkey key.pri -in earth.bin -out plainn.txt
+
+openssl rand -hex 32 > some.key
+openssl rsautl -encrypt -inkey key.pub -pubin -in some.key -out secret.enc
+openssl rsautl -decrypt -inkey key.pri -in secret.enc -out secret_dec.key
