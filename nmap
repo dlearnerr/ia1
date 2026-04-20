@@ -1,0 +1,21 @@
+nmap -sn 192.168.1.0/24
+nmap 192.168.1.1
+
+nmap 192.168.1.100-120
+nmap 192.168.1.0/24
+
+nmap 192.168.1.1
+nmap -sV 192.168.1.1
+
+nmap -O 192.168.1.1
+sudo nmap -O 192.168.1.1
+nmap -A 192.168.1.1
+
+nmap --script vuln 192.168.1.10
+nmap --script vuln 192.168.1.10 -oN result.txt
+nmap -Pn --script vuln google.com -oN result.txt
+
+' OR role='S' -- 
+
+nmap 192.168.1.10
+nmap -sV 192.168.1.10
