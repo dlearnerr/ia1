@@ -1,0 +1,68 @@
+import numpy as np
+from PIL import Image
+
+# ---------- ENCODE ----------
+def encode(src, message, dest):
+    img = Image.open(src)
+    data = np.array(img)
+
+    message += "stego"   # end marker
+    binary = ''.join(format(ord(i), '08b') for i in message)
+
+    # Check capacity
+    if len(binary) > data.size:
+        print("Message too large!")
+        return
+
+    index = 0
+    for i in range(data.shape[0]):
+        for j in range(data.shape[1]):
+            for k in range(3):   # RGB channels
+                if index < len(binary):
+                    # FIXED LINE (no overflow)
+                    data[i][j][k] = (data[i][j][k] & 254) | int(binary[index])
+                    index += 1
+
+    Image.fromarray(data.astype('uint8')).save(dest)
+    print("Image Encoded Successfully!")
+
+
+# ---------- DECODE ----------
+def decode(src):
+    img = Image.open(src)
+    data = np.array(img)
+
+    bits = ""
+    for i in range(data.shape[0]):
+        for j in range(data.shape[1]):
+            for k in range(3):
+                bits += str(data[i][j][k] & 1)
+
+    chars = [bits[i:i+8] for i in range(0, len(bits), 8)]
+
+    message = ""
+    for c in chars:
+        message += chr(int(c, 2))
+        if message.endswith("stego"):
+            print("Hidden message:", message[:-5])
+            return
+
+    print("No hidden message found")
+
+
+# ---------- MENU ----------
+print("1. Encode")
+print("2. Decode")
+choice = input("Enter choice: ")
+
+if choice == '1':
+    src = input("Source image: ")
+    msg = input("Message: ")
+    encode(src, msg, "output.png")
+
+elif choice == '2':
+    src = input("Encoded image: ")
+    decode(src)
+
+else:
+    print("Invalid option")
