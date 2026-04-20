@@ -1,0 +1,67 @@
+echo "This is AES mode demonstration" > plain.txt
+openssl enc -aes-128-ecb -e -in plain.txt -out ecb.bin -K 00112233445566778899aabbccddeeff -nosalt
+openssl enc -aes-128-ecb -d -in ecb.bin -out ecb_out.txt -K 00112233445566778899aabbccddeeff -nosalt
+xxd ecb.bin
+
+openssl enc -aes-128-cbc -e -in plain.txt -out cbc.bin -K 00112233445566778899aabbccddeeff -iv 0102030405060708090a0b0c0d0e0f00 -nosalt
+openssl enc -aes-128-cbc -d -in cbc.bin -out cbc_out.txt -K 00112233445566778899aabbccddeeff -iv 0102030405060708090a0b0c0d0e0f00 -nosalt
+xxd cbc.bin
+
+
+openssl enc -aes-128-ecb -e -in pic_original.bmp -out pic_ecb.bmp -K 00112233445566778899aabbccddeeff -nosalt
+openssl enc -aes-128-cbc -e -in pic_original.bmp -out pic_cbc.bmp -K 00112233445566778899aabbccddeeff -iv 0102030405060708090a0b0c0d0e0f00 -nosalt
+
+head -c 54 pic_original.bmp > header
+tail -c +55 pic_ecb.bmp > body_ecb
+cat header body_ecb > new_ecb.bmp
+
+tail -c +55 pic_cbc.bmp > body_cbc
+cat header body_cbc > new_cbc.bmp
+
+eog new_ecb.bmp
+eog new_cbc.bmp
+
+
+
+echo -n 12345 > f1.txt        # 5 bytes
+echo -n 1234567890 > f2.txt   # 10 bytes
+echo -n 1234567890abcdef > f3.txt   # 16 bytes
+
+openssl enc -aes-128-cbc -e -in f1.txt -out f1.bin \
+-K 00112233445566778899aabbccddeeff \
+-iv 0102030405060708090a0b0c0d0e0f00 -nosalt
+openssl enc -aes-128-cbc -d -in f1.bin -out p1_nopad.txt -nopad \
+-K 00112233445566778899aabbccddeeff \
+-iv 0102030405060708090a0b0c0d0e0f00 -nosalt
+xxd p1.txt
+xxd p1_nopad.txt
+
+
+echo "This is a test message for AES encryption demo" > plain.txt
+openssl enc -aes-128-ecb -e -in plain.txt -out ecb.bin \
+-K 00112233445566778899aabbccddeeff -nosalt
+ghex ecb.bin
+openssl enc -aes-128-ecb -d -in ecb.bin -out ecb_out.txt \
+-K 00112233445566778899aabbccddeeff -nosalt
+
+openssl enc -aes-128-cbc -e -in plain.txt -out cbc.bin \
+-K 00112233445566778899aabbccddeeff \
+-iv 0102030405060708090a0b0c0d0e0f00 -nosalt
+ghex cbc.bin
+openssl enc -aes-128-cbc -d -in cbc.bin -out cbc_out.txt \
+-K 00112233445566778899aabbccddeeff \
+-iv 0102030405060708090a0b0c0d0e0f00 -nosalt
+
+openssl enc -aes-128-cbc -e -in plain.txt -out c1.bin \
+-K 00112233445566778899aabbccddeeff \
+-iv 11111111111111111111111111111111 -nosalt
+openssl enc -aes-128-cbc -e -in plain.txt -out c2.bin \
+-K 00112233445566778899aabbccddeeff \
+-iv 22222222222222222222222222222222 -nosalt
+xxd c1.bin
+xxd c2.bin
+openssl enc -aes-128-cbc -e -in plain.txt -out c3.bin \
+-K 00112233445566778899aabbccddeeff \
+-iv 11111111111111111111111111111111 -nosalt
+xxd c1.bin
+xxd c3.bin
