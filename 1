@@ -14,3 +14,68 @@ sudo tcpdump -i eth0 -w capture.pcap
 tcpdump -r capture.pcap
 
 tcpdump -r capture.pcap port 80
+
+
+
+from PIL import Image
+
+# Convert message to binary
+def to_binary(data):
+    return ''.join(format(ord(i), '08b') for i in data)
+
+# Encode message into image
+def encode_image(input_image, output_image, secret_message):
+    img = Image.open(input_image)
+    encoded = img.copy()
+    width, height = img.size
+
+    secret_message += "####"  # delimiter
+    binary_data = to_binary(secret_message)
+    data_len = len(binary_data)
+    data_index = 0
+
+    for y in range(height):
+        for x in range(width):
+            pixel = list(img.getpixel((x, y)))
+
+            for n in range(3):  # RGB channels
+                if data_index < data_len:
+                    pixel[n] = pixel[n] & ~1 | int(binary_data[data_index])
+                    data_index += 1
+
+            encoded.putpixel((x, y), tuple(pixel))
+
+            if data_index >= data_len:
+                encoded.save(output_image)
+                print("✅ Message encoded successfully!")
+                return
+
+    print("❌ Message too large for image")
+
+# Decode message from image
+def decode_image(stego_image):
+    img = Image.open(stego_image)
+    width, height = img.size
+
+    binary_data = ""
+    for y in range(height):
+        for x in range(width):
+            pixel = img.getpixel((x, y))
+
+            for n in range(3):
+                binary_data += str(pixel[n] & 1)
+
+    all_bytes = [binary_data[i:i+8] for i in range(0, len(binary_data), 8)]
+
+    decoded_data = ""
+    for byte in all_bytes:
+        decoded_data += chr(int(byte, 2))
+        if decoded_data.endswith("####"):
+            print("🔓 Hidden Message:", decoded_data[:-4])
+            return
+
+    print("❌ No hidden message found")
+
+# Example usage
+encode_image("input.png", "stego.png", "Hello Cybersecurity")
+decode_image("stego.png")
